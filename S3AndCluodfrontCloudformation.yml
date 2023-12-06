@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This template creates an S3 bucket with specified configurations and adds a bucket policy for CloudFront."
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Description: "The Bucket name must have a unique value"
+  Versioning:
+    Type: String
+    Description: "This versioning is helpful for retrive the change"
+    AllowedValues: [Enabled,Suspended] 
+  OwnerName:
+    Type: String
+    Description: "The owner's name who created the S3 bucket using this template"
+
+Resources:
+  CCInboxFastFramWorkApplicaiton:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref S3BucketName
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: !Ref Versioning
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: owner
+          Value: !Ref OwnerName
+
+
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Description: "origin access control(OAC) for allowing cloudfront to access S3 bucket"
+        Name: CloudFrontOriginAcessControl
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - CCInboxFastFramWorkApplicaiton
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !Sub "${S3BucketName}.s3.ap-south-1.amazonaws.com"
+            Id: CloudfrontAngularApplication
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+        Enabled: "true"
+        DefaultRootObject: index.html
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        HttpVersion: http2
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - DELETE
+            - GET
+            - HEAD
+            - OPTIONS
+            - PATCH
+            - POST
+            - PUT
+          Compress: true
+          TargetOriginId: CloudfrontAngularApplication
+          ForwardedValues:
+            QueryString: "false"
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3BucketName
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "cloudfront.amazonaws.com"
+            Action: "s3:GetObject"
+            Resource: !Sub "arn:aws:s3:::${S3BucketName}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"                     
+
+Outputs:
+  S3BucketName:
+    Value:
+      Ref: CCInboxFastFramWorkApplicaiton 
+
+  OriginAccessControl:
+    Value:
+      Ref: CloudFrontOriginAccessControl 
+
+  CloudFrontDist:
+    Value:
+      Ref: CloudFrontDistribution
+           
