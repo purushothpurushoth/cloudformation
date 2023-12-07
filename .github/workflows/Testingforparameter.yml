@@ -13,22 +13,26 @@ jobs:
   DeploymentProcess:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: simplecheck
+      - run: echo pwd
 
-      - name: Configure AWS credentials
-        id: AwsCredentials
-        uses: aws-actions/configure-aws-credentials
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ github.event.inputs.region }} 
 
-      - name: Deploy S3 Buckets CloudFormation Stacks
-        id: TemplateFilesfors3
-        uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
-        with:
-          name:  s3-buckets
-          template: S3Bucket.yml
-          parameter-overrides: >-
-            BucketName=${{ github.event.inputs.bucketName }}
+      # - name: Checkout
+      #   uses: actions/checkout@v4
+
+      # - name: Configure AWS credentials
+      #   id: AwsCredentials
+      #   uses: aws-actions/configure-aws-credentials
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ github.event.inputs.region }} 
+
+      # - name: Deploy S3 Buckets CloudFormation Stacks
+      #   id: TemplateFilesfors3
+      #   uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
+      #   with:
+      #     name:  s3-buckets
+      #     template: s3.yml
+      #     parameter-overrides: >-
+      #       BucketName=${{ github.event.inputs.bucketName }}
