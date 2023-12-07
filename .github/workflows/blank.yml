@@ -1,9 +1,0 @@
-name: Testing for the two yml file
-on:
-  workflowdispatch:
-jobs:
-  TestingProcess:
-    runs-on:ubuntu-latest
-    steps: 
-      -name: sample checking for the script
-      -run: echo pwd
