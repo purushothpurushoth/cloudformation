@@ -17,3 +17,5 @@ jobs:
     steps:
       - name: simplecheck
         run: echo $PWD
+      - name: checkout
+        uses: actions/checkout
