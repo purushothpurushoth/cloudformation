@@ -29,6 +29,6 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
         with:
           name:  s3-buckets
-          template: s3.yml
+          template: S3Bucket.yml
           parameter-overrides: >-
             BucketName=${{ github.event.inputs.bucketName }}
