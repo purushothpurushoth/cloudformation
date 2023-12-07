@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: simplecheck
-      - run: echo $PWD
+        run: echo $PWD
       - name: checkout
-      - uses: actions/checkout
+        uses: actions/checkout@v2
+
