@@ -4,39 +4,36 @@ on:
   workflow_dispatch:
     inputs:
       StackName:
-        description: "The cloudformation using this name to create the cloudformation stack" 
-        default: true 
+        description: "The CloudFormation stack name"
+        default: "cloudformation"  # Provide a default value
 
 jobs:
   DeploymentProcess:
     runs-on: ubuntu-latest
-    # steps:
-    #   - name: simplecheck
-    #     run: |
-    #       echo $PWD
-    #       ls
-      # - name: checkout
-      #   uses: actions/checkout@v2
-      # - name: configure Aws Credentials
-      #   id: AwsCredentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
-      #     aws-secret-access-key: ${{secrets.SECRET_ACCESS_KEY}}
-      #     aws-region: us-east-1
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        id: AwsCredentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.SECRET_ACCESS_KEY}}
+          aws-region: us-east-1
+
       - name: Run aws-actions/aws-cloudformation-github-deploy@v1.0.3
         uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
         with:
-          name: cloudformation
+          name: ${{ github.event.inputs.StackName }}
           template: ccinboxnx-s3-cloudfront-cloudformation.yml
           parameter-overrides: file://s3andcloudfrontparameter.yml
           capabilities: CAPABILITY_IAM
           no-fail-on-empty-changeset: 0
           disable-rollback: 0
           termination-protection: 0
-       env:
-        AWS_DEFAULT_REGION: us-east-1
-        AWS_REGION: us-east-1
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
