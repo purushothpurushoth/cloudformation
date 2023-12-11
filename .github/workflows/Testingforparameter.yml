@@ -29,9 +29,8 @@ jobs:
 
       - name: Deploy CloudFormation Stack
         id: cloudformation
-        uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
-        run: aws cloudformation deploy \
-               --template-file ccinboxnx-s3-cloudfront-cloudformation.yml 
-               --parameter-overrides file://s3andcloudfrontparameter.yml 
-               --stack-name ${{ github.event.inputs.StackName }}
-        
+        run: |
+          aws cloudformation deploy \
+            --template-file ccinboxnx-s3-cloudfront-cloudformation.yml \
+            --parameter-overrides $(cat s3andcloudfrontparameter.yml) \
+            --stack-name ${{ github.event.inputs.StackName }}
