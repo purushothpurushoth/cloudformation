@@ -1,25 +1,22 @@
-name: CloudFormation Deployment
+name: Testing for the CloudFormation template in GitHub Action.
 
 on:
   workflow_dispatch:
     inputs:
       StackName:
-        description: "The CloudFormation stack name"
-        default: "cloudformation"  # Provide a default value
+        description: "The cloudformation using this name to create the cloudformation stack" 
+        default: true 
 
 jobs:
   DeploymentProcess:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Working Directory and List Contents
-        run: |
-          echo $PWD
-          ls
-
-      - name: Checkout Repository
+      - name: simplecheck
+        run: echo $PWD
+        run: echo $ls
+      - name: checkout
         uses: actions/checkout@v2
-
-      - name: Configure AWS Credentials
+      - name: configure Aws Credentials
         id: AwsCredentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -27,10 +24,10 @@ jobs:
           aws-secret-access-key: ${{secrets.SECRET_ACCESS_KEY}}
           aws-region: us-east-1
 
-      - name: Deploy CloudFormation Stack
-        id: cloudformation
-        run: |
-          aws cloudformation deploy \
-            --template-file ccinboxnx-s3-cloudfront-cloudformation.yml \
-            --parameter-overrides $(cat s3andcloudfrontparameter.yml) \
-            --stack-name ${{ github.event.inputs.StackName }}
+      - name: configure the cloudformation
+        id: cloudformation 
+        uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3    
+        with:
+          name: cloudfromation
+          template: ccinboxnx-s3-cloudfront-cloudformation.yml
+          parameter-overrides: s3andcloudfrontparameter.yml
