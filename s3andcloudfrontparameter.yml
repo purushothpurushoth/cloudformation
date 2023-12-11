@@ -1,0 +1,40 @@
+
+[
+  {
+    "ParameterKey": "Application",
+    "ParameterValue": "fastccinboxnxnew"
+  },
+  {
+    "ParameterKey": "ServiceName",
+    "ParameterValue": "parameterservice"
+  },
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "dev"
+  },
+  {
+    "ParameterKey": "CostCenter",
+    "ParameterValue": "unknown"
+  },
+  {
+    "ParameterKey": "PurchaseOrder",
+    "ParameterValue": "unknown"
+  },
+  {
+    "ParameterKey": "Client",
+    "ParameterValue": "unknown"
+  },
+  {
+    "ParameterKey": "ResourceType",
+    "ParameterValue": "Application"
+  },
+  {
+    "ParameterKey": "ProductFamily",
+    "ParameterValue": "unknown"
+  },
+  {
+    "ParameterKey": "ProductSKU",
+    "ParameterValue": "unknown"
+  }
+
+]

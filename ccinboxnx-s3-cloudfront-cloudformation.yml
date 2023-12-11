@@ -1,0 +1,227 @@
+Description: "Create the S3 bucket and CloudFront using S3 as an origin in CloudFront to deliver the content"
+
+Parameters:
+  Application:
+    Type: String
+    Description: Name of Application
+  ServiceName:
+    Description: Name of Service
+    Type: String
+  # FQDN:
+  #   Description: CNAME of distribution (Full qualified Domain Name) 
+  #   Type: String 
+  Environment:
+    Description: Target Environment
+    Type: String
+  CostCenter:
+    Type: String
+  PurchaseOrder:
+    Type: String
+  Client:
+    Type: String
+  ResourceType:
+    Type: String
+    AllowedValues:
+      - Application
+      - "Shared Service"
+      - "Support System"
+    Default: Application
+  ProductFamily:
+    Type: String
+    Description: Product family code provided by the Finance Team
+  ProductSKU:
+    Type: String
+    Description: Code provided by the Finance team to map account spending to NTST billable applications
+
+Resources:
+  CCInboxNxS3bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join ["-", [!Ref "AWS::AccountId", !Ref Application, !Ref ServiceName, !Ref Environment, origin]]
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      Tags:
+        - Key: ProductFamily
+          Value: !Ref ProductFamily
+        - Key: ProductSKU
+          Value: !Ref ProductSKU
+        - Key: CostCenter
+          Value: !Ref CostCenter
+        - Key: Type
+          Value: !Ref ResourceType
+        - Key: Client
+          Value: !Ref Client
+        - Key: PurchaseOrder
+          Value: !Ref PurchaseOrder
+
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DependsOn: ContentDistribution
+    Properties:
+      Bucket: !Ref CCInboxNxS3bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "cloudfront.amazonaws.com"
+            Action: "s3:GetObject"
+            Resource: !Sub "arn:aws:s3:::${CCInboxNxS3bucket}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ContentDistribution}"
+
+  CloudFrontLoggingBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Join ["-", [!Ref "AWS::AccountId", !Ref Application, !Ref ServiceName, !Ref Environment, cflogs]]
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+      Tags:
+        - Key: Logs
+          Value: cloudfront
+
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Ref CCInboxNxS3bucket
+        Description: "origin access control for allowing cloudfront to access s3 bucket"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  ContentDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        # Aliases:
+        #   - !Ref FQDN
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          TargetOriginId: !Join ["-", [!Ref Application, !Ref ServiceName]]
+          ViewerProtocolPolicy: redirect-to-https  
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 300
+        Enabled: true
+        HttpVersion: http2
+        DefaultRootObject: index.html
+        Logging:
+          Bucket: !GetAtt CloudFrontLoggingBucket.DomainName
+          IncludeCookies: false
+          Prefix: !Ref Environment
+        Origins:
+          - DomainName: !GetAtt CCInboxNxS3bucket.DomainName
+            Id: !Join ["-", [!Ref Application, !Ref ServiceName]]
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+        # ViewerCertificate:
+        #   AcmCertificateArn: !Ref AlbCertificateArn
+        #   MinimumProtocolVersion: TLSv1.2_2018
+        #   SslSupportMethod: sni-only
+        WebACLId: !GetAtt WebAppliationFirewall.Arn    
+      Tags:
+        - Key: ProductFamily
+          Value: !Ref ProductFamily
+        - Key: ProductSKU
+          Value: !Ref ProductSKU
+        - Key: CostCenter
+          Value: !Ref CostCenter
+        - Key: Type
+          Value: !Ref ResourceType
+        - Key: Client
+          Value: !Ref Client
+        - Key: PurchaseOrder
+          Value: !Ref PurchaseOrder
+
+  WebAppliationFirewall:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      DefaultAction:
+        Allow: {}
+      Scope: CLOUDFRONT
+      VisibilityConfig:
+        CloudWatchMetricsEnabled: True
+        MetricName: !Join [ '-', [ !Ref Application, !Ref ServiceName, !Ref Environment ] ]
+        SampledRequestsEnabled: True
+      Rules:
+        - Name: 'AWS-AWSManagedRulesAmazonIpReputationList'
+          Priority: 0
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              Name: AWSManagedRulesAmazonIpReputationList
+              VendorName: AWS
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: True
+            MetricName: !Join [ '-', [ !Ref Application, !Ref ServiceName, !Ref Environment, "AWSManagedRulesAmazonIpReputationList" ] ]
+            SampledRequestsEnabled: True 
+        - Name: 'AWS-AWSManagedRulesKnownBadInputsRuleSet'
+          Priority: 1
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              Name: AWSManagedRulesKnownBadInputsRuleSet
+              VendorName: AWS
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: True
+            MetricName: !Join [ '-', [ !Ref Application, !Ref ServiceName, !Ref Environment, "AWSManagedRulesKnownBadInputsRuleSet" ] ]
+            SampledRequestsEnabled: True 
+        - Name: 'AWS-AWSManagedRulesSQLiRuleSet'
+          Priority: 2
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              Name: AWSManagedRulesSQLiRuleSet
+              VendorName: AWS
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: True
+            MetricName: !Join [ '-', [ !Ref Application, !Ref ServiceName, !Ref Environment, "AWSManagedRulesSQLiRuleSet" ] ]
+            SampledRequestsEnabled: True
+        - Name: 'AWS-AWSManagedRulesCommonRuleSet'
+          Priority: 3
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              Name: AWSManagedRulesCommonRuleSet
+              VendorName: AWS
+              ExcludedRules:
+              - Name: GenericRFI_BODY
+              - Name: SizeRestrictions_BODY
+              - Name: NoUserAgent_HEADER
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: True
+            MetricName: !Join [ '-', [ !Ref Application, !Ref ServiceName, !Ref Environment, "AWSManagedRulesCommonRuleSet" ] ]
+            SampledRequestsEnabled: True                
+   
