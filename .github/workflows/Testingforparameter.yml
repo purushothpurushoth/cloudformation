@@ -10,11 +10,11 @@ on:
 jobs:
   DeploymentProcess:
     runs-on: ubuntu-latest
-    steps:
-      - name: simplecheck
-        run: |
-          echo $PWD
-          ls
+    # steps:
+    #   - name: simplecheck
+    #     run: |
+    #       echo $PWD
+    #       ls
       # - name: checkout
       #   uses: actions/checkout@v2
       # - name: configure Aws Credentials
@@ -24,7 +24,7 @@ jobs:
       #     aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
       #     aws-secret-access-key: ${{secrets.SECRET_ACCESS_KEY}}
       #     aws-region: us-east-1
-
+    steps:
       - name: Run aws-actions/aws-cloudformation-github-deploy@v1.0.3
         uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
         with:
