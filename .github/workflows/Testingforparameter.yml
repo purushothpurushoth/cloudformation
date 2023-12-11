@@ -13,7 +13,6 @@ jobs:
     steps:
       - name: simplecheck
         run: echo $PWD
-        run: echo $ls
       - name: checkout
         uses: actions/checkout@v2
       - name: configure Aws Credentials
