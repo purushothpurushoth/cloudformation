@@ -32,4 +32,5 @@ jobs:
           name:  s3-buckets
           template: ccinboxnx-s3-cloudfront-cloudformation.yml
           parameter-overrides: >-
+            usePreviousValue: true
             file://s3andcloudfrontparameter.yml
