@@ -25,10 +25,13 @@ jobs:
           aws-secret-access-key: ${{secrets.SECRET_ACCESS_KEY}}
           aws-region: us-east-1
 
-      - name: configure the cloudformation
-        id: cloudformation 
-        uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3    
+      - name: Run aws-actions/aws-cloudformation-github-deploy@v1.0.3
+        uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
         with:
-          name: cloudfromation
+          name: cloudformation
           template: ccinboxnx-s3-cloudfront-cloudformation.yml
-          parameter-overrides: $(cat s3andcloudfrontparameter.yml)
+          parameter-overrides: $(<s3andcloudfrontparameter.yml)
+          capabilities: CAPABILITY_IAM
+          no-fail-on-empty-changeset: 0
+          disable-rollback: 0
+          termination-protection: 0
