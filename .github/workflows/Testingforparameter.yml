@@ -31,4 +31,4 @@ jobs:
         with:
           name: cloudfromation
           template: ccinboxnx-s3-cloudfront-cloudformation.yml
-          parameter-overrides: s3andcloudfrontparameter.yml
+          parameter-overrides: file://s3andcloudfrontparameter.yml
