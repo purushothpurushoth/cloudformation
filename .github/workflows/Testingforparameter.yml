@@ -27,7 +27,6 @@ jobs:
         with:
           name: ${{ github.event.inputs.StackName }}
           template: ccinboxnx-s3-cloudfront-cloudformation.yml
-          parameter-overrides: file://s3andcloudfrontparameter.yml
           capabilities: CAPABILITY_IAM
           no-fail-on-empty-changeset: 0
           disable-rollback: 0
