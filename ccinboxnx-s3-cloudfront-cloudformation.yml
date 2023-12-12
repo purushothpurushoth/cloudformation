@@ -4,42 +4,36 @@ Parameters:
   Application:
     Type: String
     Description: Name of Application
-    # Default: sampletesting
   ServiceName:
     Description: Name of Service
     Type: String
-    # Default: sampletesting
   # FQDN:
   #   Description: CNAME of distribution (Full qualified Domain Name) 
   #   Type: String 
   Environment:
     Description: Target Environment
     Type: String
-    # Default: sampletesting
   CostCenter:
     Type: String
-    # Default: sampletesting
   PurchaseOrder:
     Type: String
-    # Default: sampletesting
   Client:
     Type: String
-    # Default: sampletesting
   ResourceType:
     Type: String
     AllowedValues:
       - Application
       - "Shared Service"
       - "Support System"
-    # Default: Application
+    Default: Application
   ProductFamily:
     Type: String
     Description: Product family code provided by the Finance Team
-    # Default: sampletesting
+   
   ProductSKU:
     Type: String
     Description: Code provided by the Finance team to map account spending to NTST billable applications
-    # Default: sampletesting
+    
 
 Resources:
   CCInboxNxS3bucket:

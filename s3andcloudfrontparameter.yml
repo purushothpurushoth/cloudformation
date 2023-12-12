@@ -1,11 +1,11 @@
 [
   {
     "ParameterKey": "Application",
-    "ParameterValue": "fastccinboxnxnew"
+    "ParameterValue": "ntst"
   },
   {
     "ParameterKey": "ServiceName",
-    "ParameterValue": "parameterservice"
+    "ParameterValue": "inbox"
   },
   {
     "ParameterKey": "Environment",
@@ -13,15 +13,15 @@
   },
   {
     "ParameterKey": "CostCenter",
-    "ParameterValue": "unknown"
+    "ParameterValue": "5020 RD Core Services"
   },
   {
     "ParameterKey": "PurchaseOrder",
-    "ParameterValue": "unknown"
+    "ParameterValue": "N/A"
   },
   {
     "ParameterKey": "Client",
-    "ParameterValue": "unknown"
+    "ParameterValue": "Netsmart"
   },
   {
     "ParameterKey": "ResourceType",
@@ -29,11 +29,11 @@
   },
   {
     "ParameterKey": "ProductFamily",
-    "ParameterValue": "unknown"
+    "ParameterValue": "N/A"
   },
   {
     "ParameterKey": "ProductSKU",
-    "ParameterValue": "unknown"
+    "ParameterValue": "N/A"
   }
 
 ]

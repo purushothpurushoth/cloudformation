@@ -3,8 +3,8 @@ name: Deploy CloudFormation Stacks
 on:
   workflow_dispatch:
     inputs:
-      bucketName:
-        description: "S3 Bucket Name"
+      stackName:
+        description: "The cloudformation using this stack name"
         required: true
 
 jobs:
@@ -13,9 +13,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: List Contents of the Current Directory
-        run: ls
 
       - name: Configure AWS credentials
         id: creds
@@ -30,4 +27,4 @@ jobs:
           aws cloudformation deploy \
             --template-file ccinboxnx-s3-cloudfront-cloudformation.yml \
             --parameter-overrides file://s3andcloudfrontparameter.yml \
-            --stack-name cluodfromationworking
+            --stack-name ${{ github.event.inputs.stackName }}
