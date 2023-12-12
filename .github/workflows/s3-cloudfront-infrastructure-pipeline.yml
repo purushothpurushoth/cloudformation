@@ -21,7 +21,7 @@ jobs:
         id: creds
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          role-to-assume: arn:aws:iam::331952164793:oidc-provider/token.actions.githubusercontent.com
+          role-to-assume: arn:aws:iam::331952164793:role/git-role
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: us-east-1
 
