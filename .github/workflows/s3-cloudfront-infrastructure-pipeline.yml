@@ -6,6 +6,9 @@ on:
       stackName:
         description: "The cloudformation using this stack name"
         required: true
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read        
 
 jobs:
   cfn-deployment:
