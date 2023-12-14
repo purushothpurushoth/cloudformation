@@ -26,8 +26,8 @@ jobs:
         id: creds
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          role-to-assume: arn:aws:iam::331952164793:role/github
-          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          role-to-assume: arn:aws:iam::617592436183:role/GitHubActionsAccess
+          role-session-name: OIDC_session
           aws-region: us-east-1
 
       - name: Deploy S3 Buckets CloudFormation Stacks
